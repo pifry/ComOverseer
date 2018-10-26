@@ -15,10 +15,12 @@ namespace ComOverseer
     public partial class Form1 : ApplicationContext
     {
         private UsbMonitor usb;
+        private string[] serialPortNamesList;
         public Form1()
         {
             InitializeComponent();
             usb = new UsbMonitor();
+            serialPortNamesList = SerialPort.GetPortNames();
             usb.OnInsert_handler += new EventArrivedEventHandler(OnInsert);
             notifyIcon1.Icon = SystemIcons.Information;
             notifyIcon1.Click += NotifyIcon1_Click;
@@ -30,7 +32,7 @@ namespace ComOverseer
             MouseEventArgs me = (MouseEventArgs)e;
             if (me.Button == MouseButtons.Left)
             {
-                notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, SerialPort.GetPortNames()), ToolTipIcon.Info);
+                notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, serialPortNamesList), ToolTipIcon.Info);
             }
         }
 
@@ -41,7 +43,15 @@ namespace ComOverseer
 
         private void OnInsert(Object s, EventArrivedEventArgs e)
         {
-            notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, SerialPort.GetPortNames()), ToolTipIcon.Info);
+            string[] updatedSerialPortNamseList = SerialPort.GetPortNames();
+            if(updatedSerialPortNamseList.Length != serialPortNamesList.Length)
+            {
+                var updated = updatedSerialPortNamseList.Intersect(serialPortNamesList);
+                updated = updated.Concat(updatedSerialPortNamseList.Except(serialPortNamesList).Select(x => x = string.Concat(x, " NEW!")));
+                serialPortNamesList = updated.ToArray<string>();
+                Array.Sort(serialPortNamesList);
+            }
+            notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, serialPortNamesList), ToolTipIcon.Info);
         }
 
 
