@@ -16,11 +16,13 @@ namespace ComOverseer
     {
         private UsbMonitor usb;
         private string[] serialPortNamesList;
+        private string[] displaySerialPortNamesList;
         public Form1()
         {
             InitializeComponent();
             usb = new UsbMonitor();
             serialPortNamesList = SerialPort.GetPortNames();
+            displaySerialPortNamesList = SerialPort.GetPortNames();
             usb.OnInsert_handler += new EventArrivedEventHandler(OnInsert);
             notifyIcon1.Icon = SystemIcons.Information;
             notifyIcon1.Click += NotifyIcon1_Click;
@@ -32,7 +34,7 @@ namespace ComOverseer
             MouseEventArgs me = (MouseEventArgs)e;
             if (me.Button == MouseButtons.Left)
             {
-                notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, serialPortNamesList), ToolTipIcon.Info);
+                notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, displaySerialPortNamesList), ToolTipIcon.Info);
             }
         }
 
@@ -47,11 +49,11 @@ namespace ComOverseer
             if(updatedSerialPortNamseList.Length != serialPortNamesList.Length)
             {
                 var updated = updatedSerialPortNamseList.Intersect(serialPortNamesList);
-                updated = updated.Concat(updatedSerialPortNamseList.Except(serialPortNamesList).Select(x => x = string.Concat(x, " NEW!")));
-                serialPortNamesList = updated.ToArray<string>();
-                Array.Sort(serialPortNamesList);
+                displaySerialPortNamesList = updated.Concat(updatedSerialPortNamseList.Except(serialPortNamesList).Select(x => x = string.Concat(x, " NEW!"))).ToArray<string>();
+                serialPortNamesList = updated.Concat(updatedSerialPortNamseList.Except(serialPortNamesList)).ToArray<string>();
+                Array.Sort(displaySerialPortNamesList);
+                notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, displaySerialPortNamesList), ToolTipIcon.Info);
             }
-            notifyIcon1.ShowBalloonTip(3000, "Available serial ports:", String.Join(Environment.NewLine, serialPortNamesList), ToolTipIcon.Info);
         }
 
 
