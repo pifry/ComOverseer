@@ -1,4 +1,4 @@
-ComOverseer (Serial ports monitor)
+##ComOverseer (Serial ports monitor)
 
 #Brief
 Shows available serial ports every time something is connected or disconnected from the system.
